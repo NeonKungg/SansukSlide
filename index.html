@@ -12,43 +12,32 @@
     <style>
         body {
             font-family: 'Prompt', sans-serif;
-            background-color: #222;
-            /* เปลี่ยนพื้นหลังนอกสไลด์เป็นสีเข้ม (ขอบดำเวลาจอไม่พอดี) */
+            background-color: #f3f4f6;
             overflow: hidden;
             margin: 0;
             padding: 0;
-            /* เอาคำสั่ง display: flex และ align ออกไป */
-            height: 100vh;
-            width: 100vw;
-            position: relative; /* เพิ่มบรรทัดนี้ */
         }
 
         .slide-container {
-            /* เปลี่ยนจาก relative เป็น absolute เพื่อลอยตัวอยู่เหนือทุกสิ่ง */
-            position: absolute; 
-            top: 50%;   /* ดันลงมาครึ่งจอ */
-            left: 50%;  /* ดันมาขวาครึ่งจอ */
-            /* ล็อคขนาด Base Resolution ให้เป็น 1920x1080 เสมอ */
-            width: 1920px;
-            height: 1080px;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
             background: white;
-            transform-origin: center center;
-            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
-            /* ใส่เงาให้ดูเป็นแผ่นสไลด์ชัดเจน */
         }
 
         .slide {
             position: absolute;
             top: 0;
             left: 0;
-            /* บังคับสไลด์ให้กว้างยาวเท่า Container เสมอ */
-            width: 1920px;
-            height: 1080px;
+            width: 100%;
+            height: 100%;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-            box-sizing: border-box;
-            overflow: hidden;
+            transform: translateY(20px);
+            display: flex;
+            flex-direction: column;
         }
 
         .slide.active {
@@ -1935,21 +1924,6 @@
                 dot.classList.toggle('active', index === currentSlideIndex);
             });
         }
-
-        function resizeSlider() {
-            const slider = document.querySelector('.slide-container');
-            // คำนวณหาอัตราส่วนที่น้อยที่สุด ระหว่างความกว้าง หรือ ความสูง
-            // เพื่อให้สไลด์ 1920x1080 ย่อ/ขยายพอดีจอโดยไม่แหว่ง
-            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-            
-            // เพิ่มคำสั่ง translate(-50%, -50%) เพื่อดึงสไลด์กลับมาอยู่กึ่งกลางเป๊ะๆ แล้วค่อย scale ย่อขนาด
-            slider.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        }
-
-        // สั่งให้คำนวณขนาดทันทีที่โหลดหน้าเว็บ และทุกครั้งที่ย่อ/ขยายหน้าต่าง
-        window.addEventListener('resize', resizeSlider);
-        resizeSlider();
-        // ==========================================
 
         function changeSlide(direction) {
             const newIndex = currentSlideIndex + direction;
