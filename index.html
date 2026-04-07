@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นำเสนอผลการดำเนินงาน ศูนย์คัดกรอง รพ.สต.แสนสุข</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #222;
+            /* เปลี่ยนพื้นหลังนอกสไลด์เป็นสีเข้ม (ขอบดำเวลาจอไม่พอดี) */
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            /* เอาคำสั่ง display: flex และ align ออกไป */
+            height: 100vh;
+            width: 100vw;
+            position: relative; /* เพิ่มบรรทัดนี้ */
+        }
+
+        .slide-container {
+            /* เปลี่ยนจาก relative เป็น absolute เพื่อลอยตัวอยู่เหนือทุกสิ่ง */
+            position: absolute; 
+            top: 50%;   /* ดันลงมาครึ่งจอ */
+            left: 50%;  /* ดันมาขวาครึ่งจอ */
+            /* ล็อคขนาด Base Resolution ให้เป็น 1920x1080 เสมอ */
+            width: 1920px;
+            height: 1080px;
+            background: white;
+            transform-origin: center center;
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+            /* ใส่เงาให้ดูเป็นแผ่นสไลด์ชัดเจน */
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            /* บังคับสไลด์ให้กว้างยาวเท่า Container เสมอ */
+            width: 1920px;
+            height: 1080px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        /* Slide Specific Styles */
+        .bg-primary {
+            background-color: #0f4c81;
+        }
+
+        /* Classic Blue */
+        .bg-secondary {
+            background-color: #0088a9;
+        }
+
+        /* Teal */
+        .text-primary {
+            color: #0f4c81;
+        }
+
+        .text-secondary {
+            color: #0088a9;
+        }
+
+        .border-primary {
+            border-color: #0f4c81;
+        }
+
+        /* Placeholder styling */
+        .img-placeholder {
+            border: 2px dashed #cbd5e1;
+            background-color: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            text-align: center;
+            border-radius: 0.5rem;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .img-placeholder i {
+            font-size: 2rem;
+            color: #94a3b8;
+            z-index: 10;
+        }
+
+        .img-placeholder span {
+            z-index: 10;
+        }
+
+        /* Controls */
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 50;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-nav {
+            background: rgba(15, 76, 129, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Prompt';
+        }
+
+        .btn-nav:hover {
+            background: rgba(15, 76, 129, 1);
+        }
+
+        .btn-nav:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Progress Indicator */
+        .progress-container {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 60%;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: #0f4c81;
+            transform: scale(1.4);
+        }
+
+        /* Custom Scrollbar for content areas if needed */
+        .content-scroll {
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 3rem;
+        }
+
+        .content-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .content-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .content-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        /* =========================================
+           ชุดโค้ด Export PDF แบบใหม่ ล็อคขนาด 16:9 สัดส่วนเป๊ะ
+           ========================================= */
+        @media print {
+            @page {
+                size: 16in 9in;
+                /* กำหนดสัดส่วนหน้ากระดาษ 16:9 */
+                margin: 0 !important;
+            }
+
+            html,
+            body {
+                width: 16in !important;
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                font-size: 16px !important;
+                /* ล็อค Base Font ไม่ให้บราวเซอร์แอบย่อ/ขยายตอนปริ้นท์ */
+            }
+
+            #slider,
+            .slide-container {
+                position: static !important;
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                background: white !important;
+            }
+
+            /* บังคับสไลด์ทุกแผ่นให้มีขนาด 16x9 นิ้วพอดีเป๊ะ ห้ามยืดหด */
+            .slide {
+                position: relative !important;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 16in !important;
+                height: 9in !important;
+                max-height: 9in !important;
+                overflow: hidden !important;
+                /* ซ่อนส่วนเกินที่อาจจะดันหน้าให้ตกบรรทัด */
+
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+                top: auto !important;
+                left: auto !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            .slide:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+
+            /* ปิดการเคลื่อนไหวและฟิลเตอร์ที่ทำให้บัคกระดาษขาว */
+            *,
+            *:before,
+            *:after {
+                transition: none !important;
+                animation: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+
+            /* แก้จุดบอดของ .content-scroll ห้ามใช้ overflow: visible ถ้ายาวเกินให้ตัดขอบซ่อนไปเลย */
+            .content-scroll {
+                overflow: hidden !important;
+                height: auto !important;
+                max-height: 100% !important;
+                padding-bottom: 0 !important;
+                /* เอา padding ที่เผื่อ scroll ออกเวลาปริ้นท์ */
+            }
+
+            /* ซ่อน UI ทั้งหมด */
+            .controls,
+            .progress-container,
+            button,
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="slide-container" id="slider">
+
+        <div class="slide active bg-primary text-white p-10 flex items-center justify-center">
+            <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            <div class="relative z-10 w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+                <div class="w-full md:w-1/2 max-w-[500px] bg-white rounded-2xl p-3 flex items-center justify-center shadow-2xl transform md:-rotate-2 transition-transform hover:rotate-0">
+                    <img src="slide1photo.jpg" class="w-full h-auto rounded-xl object-cover" alt="รูปอาคาร รพ.สต.แสนสุข">
+                </div>
+
+                <div class="w-full md:w-1/2 text-center md:text-left flex flex-col items-center md:items-start">
+                    <img src="Logo.png" class="w-20 h-20 md:w-24 md:h-24 mb-6 rounded-full shadow-lg bg-white p-1 object-contain" alt="โลโก้ รพ.สต.แสนสุข">
+                    <h2 class="text-2xl text-blue-200 font-medium tracking-wide mb-2">ยินดีต้อนรับ คณะผู้ตรวจประเมินรับรองคุณภาพ</h2>
+                    <h1 class="text-5xl md:text-6xl font-bold mb-8 leading-tight">ศูนย์คัดกรอง<br>รพ.สต.แสนสุข</h1>
+                    <div class="w-20 h-1 bg-blue-400 mx-auto md:mx-0"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ข้อมูลทั่วไป</h2>
+                    <p class="text-gray-500 mt-1">ที่ตั้งและขอบเขตพื้นที่รับผิดชอบ</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-10 content-scroll mt-2 items-stretch">
+                <div class="w-full md:w-1/2 flex flex-col justify-center">
+                    <div class="bg-white p-6 rounded-2xl shadow-base border-l-4 border-primary mb-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">โรงพยาบาลส่งเสริมสุขภาพตำบลแสนสุข</h3>
+                        <p class="text-gray-700 text-lg flex items-start gap-3 mt-3">
+                            <i class="fa-solid fa-location-dot mt-1 text-red-500 text-xl"></i>
+                            เลขที่ 114 ถนนสุขุมวิท ตำบลแสนสุข<br>อำเภอเมือง จังหวัดชลบุรี
+                        </p>
+                    </div>
+
+                    <h3 class="text-lg font-bold text-secondary mb-4 flex items-center">
+                        <i class="fa-solid fa-road mr-2"></i> พื้นที่รับผิดชอบทั้งหมด 13 ถนน ได้แก่
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-y-4 gap-x-4 bg-white p-6 rounded-2xl shadow-base border border-gray-100">
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">1</span> ถนนสุขุมวิท</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">2</span> ถนนลงหาดบางแสน</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">3</span> ถนนมิตรสัมพันธ์</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">4</span> ถนนสันติเกษม</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">5</span> ถนนเนตรดี</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">6</span> ถนนบางแสนล่าง</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">7</span> ถนนมาบมะยม</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">8</span> ถนนบางแสนสาย 3</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">9</span> ถนนบางแสนสาย 4 เหนือ</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">10</span> ถนนบางแสนสาย 4 ใต้</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">11</span> ถนนบางแสนอ่างศิลา</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">12</span> ถนนรอบเขาสามมุข</div>
+                        <div class="flex items-center gap-3 text-gray-800 text-base md:text-lg font-medium"><span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-base font-bold shrink-0">13</span> ถนนหลังวัดกลางดอน</div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 flex items-center justify-center py-4">
+                    <div class="w-full h-full relative rounded-2xl overflow-hidden shadow-base border-4 border-white bg-white flex items-center justify-center">
+                        <img src="Map.png" class="w-full h-full object-contain hover:scale-105 transition-transform duration-500" alt="แผนที่เขตรับผิดชอบ ถนน 13 สาย">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-users-viewfinder"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-800">บริบทพื้นที่ และข้อมูลประชากร</h2>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-8 content-scroll mt-2">
+                <div class="w-full md:w-5/12 flex flex-col gap-3">
+                    <div class="w-full h-64 md:h-full relative rounded-xl overflow-hidden shadow-md border border-gray-200">
+                        <img src="Slide2Map.png" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="แผนที่ตำบลแสนสุข">
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm text-gray-700 leading-relaxed text-center shadow-base">
+                        <span class="font-bold text-primary text-base"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i> ลักษณะภูมิประเทศ:</span><br>
+                        เป็นชุมชนเมืองและแหล่งท่องเที่ยวทางทะเลที่สำคัญ (หาดบางแสน) พื้นที่ด้านตะวันตกติดชายฝั่งอ่าวไทย แวดล้อมด้วยพื้นที่เศรษฐกิจ ส่งผลให้มีประชากรแฝงและนักท่องเที่ยวหมุนเวียนสูง
+                    </div>
+                </div>
+
+                <div class="w-full md:w-7/12 flex flex-col gap-5">
+                    <div class="bg-blue-50 rounded-xl p-6 border border-blue-100 shadow-base relative overflow-hidden">
+                        <div class="absolute -right-6 -top-6 text-blue-100 opacity-50"><i class="fa-solid fa-users text-9xl"></i></div>
+                        <h3 class="text-xl font-semibold text-primary mb-1 relative z-10">ประชากรในพื้นที่รับผิดชอบ</h3>
+                        <p class="text-5xl font-bold text-gray-800 relative z-10 mb-4">24,137 <span class="text-2xl font-normal text-gray-500">คน</span></p>
+
+                        <div class="grid grid-cols-2 gap-4 relative z-10">
+                            <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-base border border-gray-100">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500 text-lg"><i class="fa-solid fa-mars"></i></div>
+                                <div>
+                                    <p class="text-sm text-gray-500">ชาย</p>
+                                    <p class="text-lg font-bold text-gray-800">11,005</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white p-3 rounded-lg shadow-base border border-gray-100">
+                                <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500 text-lg"><i class="fa-solid fa-venus"></i></div>
+                                <div>
+                                    <p class="text-sm text-gray-500">หญิง</p>
+                                    <p class="text-lg font-bold text-gray-800">13,132</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 bg-gradient-to-r from-emerald-500 to-teal-500 p-3 rounded-xl shadow-md border border-emerald-200 flex items-center justify-between relative z-10 transform hover:scale-[1.02] transition-transform">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-white/20 text-white flex items-center justify-center text-lg shadow-inner"><i class="fa-solid fa-hand-holding-medical"></i></div>
+                                <span class="font-bold text-white text-base">กำลังพล อสม. ในพื้นที่</span>
+                            </div>
+                            <span class="text-2xl font-bold text-white">306 <span class="text-base font-medium text-emerald-100">คน</span></span>
+                        </div>
+                    </div>
+
+                    <h3 class="text-lg font-semibold text-gray-700 mt-1">การจำแนกตามช่วงวัย</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center shadow-base">
+                            <i class="fa-solid fa-baby text-2xl text-yellow-500 mb-2"></i>
+                            <p class="text-base text-gray-500">เด็ก (0-5 ปี)</p>
+                            <p class="text-xl font-bold text-gray-800">154</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center shadow-base">
+                            <i class="fa-solid fa-child-reaching text-2xl text-green-500 mb-2"></i>
+                            <p class="text-base text-gray-500">วัยเรียน/วัยรุ่น</p>
+                            <p class="text-xl font-bold text-gray-800">2,738</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center shadow-base border-b-4 border-b-primary">
+                            <i class="fa-solid fa-user-tie text-2xl text-primary mb-2"></i>
+                            <p class="text-base text-gray-500">วัยทำงาน</p>
+                            <p class="text-xl font-bold text-primary">16,112</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 text-center shadow-base">
+                            <i class="fa-solid fa-person-cane text-2xl text-purple-500 mb-2"></i>
+                            <p class="text-base text-gray-500">ผู้สูงอายุ</p>
+                            <p class="text-xl font-bold text-gray-800">5,133</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-building-flag"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ข้อมูลสถานที่สำคัญในชุมชน</h2>
+                    <p class="text-gray-500 mt-1">โรงเรียน ศูนย์พัฒนาเด็กเล็ก และศาสนสถานในพื้นที่รับผิดชอบ</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 content-scroll mt-2 items-start">
+
+                <div class="bg-white rounded-2xl shadow-base border border-gray-200 overflow-hidden flex flex-col h-full">
+                    <div class="h-40 overflow-hidden relative border-b border-gray-100">
+                        <img src="School.jpg" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="โรงเรียน">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0f4c81] to-transparent p-3 pt-10">
+                            <h3 class="text-white font-bold text-lg flex items-center"><i class="fa-solid fa-school mr-2 text-blue-200"></i> โรงเรียน (8 แห่ง)</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <ul class="space-y-3 text-base text-gray-700 font-medium">
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนอนุบาลวัดกลางดอนเมืองชลบุรี</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนแสนสุขศึกษา</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนวอนนภาศัพท์</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนโสตศึกษาจังหวัดชลบุรี</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนบ้านแหลมแท่น</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนวัดบางเป้ง</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนสามมุกคริสเตียนวิทยา</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-green-500 mt-0.5 text-base"></i> โรงเรียนแสนสุข</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-base border border-gray-200 overflow-hidden flex flex-col h-full">
+                    <div class="h-40 overflow-hidden relative border-b border-gray-100">
+                        <img src="ChildDevelopmentCenter.jpg" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="ศูนย์พัฒนาเด็กเล็ก">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-orange-600 to-transparent p-3 pt-10">
+                            <h3 class="text-white font-bold text-lg flex items-center"><i class="fa-solid fa-child-reaching mr-2 text-orange-200"></i> ศูนย์พัฒนาเด็กเล็ก (1 แห่ง)</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <ul class="space-y-3 text-base text-gray-700 font-medium">
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-orange-500 mt-0.5 text-base"></i> ศูนย์พัฒนาเด็กเล็กเทศบาลเมืองแสนสุข</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-base border border-gray-200 overflow-hidden flex flex-col h-full">
+                    <div class="h-40 overflow-hidden relative border-b border-gray-100">
+                        <img src="Temple.jpg" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="วัด">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-yellow-600 to-transparent p-3 pt-10">
+                            <h3 class="text-white font-bold text-lg flex items-center"><i class="fa-solid fa-vihara mr-2 text-yellow-200"></i> วัด (3 แห่ง)</h3>
+                        </div>
+                    </div>
+                    <div class="p-5 flex-1 bg-white">
+                        <ul class="space-y-3 text-base text-gray-700 font-medium">
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-yellow-500 mt-0.5 text-base"></i> วัดแจ้งเจริญดอน</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-yellow-500 mt-0.5 text-base"></i> วัดบางเป้ง</li>
+                            <li class="flex items-start gap-3"><i class="fa-solid fa-check-circle text-yellow-500 mt-0.5 text-base"></i> วัดไตรมุขชยาราม</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slide p-6 md:p-10 flex flex-col bg-slate-50">
+            <div class="mb-4 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-sitemap"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">แผนผังโครงสร้างองค์กร</h2>
+                    <p class="text-gray-500 mt-1">โครงสร้างการบริหารงานศูนย์คัดกรอง รพ.สต.แสนสุข</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full flex items-center justify-center mt-2 pb-4">
+                <img src="EmployeeTable.jpg" class="w-auto h-auto max-w-6xl max-h-[70vh] object-contain bg-white rounded-2xl shadow-md border border-gray-200 p-2 md:p-4 hover:scale-[1.02] transition-transform duration-500" alt="แผนผังโครงสร้างองค์กร">
+            </div>
+        </div>
+
+        <div class="slide p-6 md:p-10 flex flex-col bg-white">
+            <div class="mb-4 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-clipboard-user"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">โครงสร้างและหน้าที่การรับผิดชอบ</h2>
+                    <p class="text-gray-500 mt-1">บทบาทและหน้าที่ของบุคลากรประจำศูนย์คัดกรอง</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full flex items-center justify-center mt-2 pb-4">
+                <img src="JobTable.jpg" class="w-auto h-auto max-w-6xl max-h-[70vh] object-contain bg-gray-50 rounded-2xl shadow-md border border-gray-200 p-2 md:p-4 hover:scale-[1.02] transition-transform duration-500" alt="โครงสร้างและหน้าที่การรับผิดชอบ">
+            </div>
+        </div>
+
+        <div class="slide p-6 md:p-10 flex flex-col bg-slate-50">
+            <div class="mb-4 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ตารางการให้บริการสุขภาพ</h2>
+                    <p class="text-gray-500 mt-1">เวลาทำการและรายละเอียดการให้บริการของ รพ.สต.แสนสุข</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full flex items-center justify-center mt-2 pb-4">
+                <img src="worktable.jpg" class="w-auto h-auto max-w-6xl max-h-[70vh] object-contain bg-white rounded-2xl shadow-md border border-gray-200 p-2 md:p-4 hover:scale-[1.02] transition-transform duration-500" alt="ตารางการให้บริการสุขภาพ">
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-gray-50">
+            <div class="mb-8 flex items-center gap-4 shrink-0">
+                <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">สถานการณ์ปัญหายาเสพติด</h2>
+                    <p class="text-gray-500 mt-1">ปัจจัยเสี่ยงและบริบทเฉพาะของพื้นที่จังหวัดชลบุรี</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 bg-white rounded-2xl shadow-md border-t-4 border-red-500 p-8 flex flex-col md:flex-row gap-10 items-stretch content-scroll">
+
+                <div class="w-full md:w-1/2 flex flex-col justify-center">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                        <i class="fa-solid fa-bullseye text-red-500 mr-3"></i> ภาพรวมปัญหาในพื้นที่
+                    </h3>
+                    <ul class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                        <li class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-red-50 text-red-500 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-city"></i></div>
+                            <span><b>เมืองเศรษฐกิจและท่องเที่ยว:</b> มีประชากรแฝงและแรงงานต่างด้าวจำนวนมาก ทำให้เป็นเป้าหมายหลักของการกระจายยาเสพติด</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-mobile-screen"></i></div>
+                            <span><b>เครือข่ายออนไลน์:</b> เป็นช่องทางหลักที่ทำให้แพร่ระบาดอย่างรวดเร็ว เข้าถึงง่าย และเกิดกลุ่มยาผสมผสานแบบใหม่ (Club Drugs)</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center shrink-0 mt-1"><i class="fa-solid fa-users"></i></div>
+                            <span><b>กลุ่มเสี่ยงหลัก:</b> วัยทำงาน (อายุ 15-55 ปี) อาชีพรับจ้าง</span>
+                        </li>
+                    </ul>
+
+                    <div class="mt-8 flex flex-wrap gap-3">
+                        <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-medium border border-gray-200 shadow-base">💊 ยาบ้า</span>
+                        <span class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full font-medium border border-gray-200 shadow-base">🧊 ยาไอซ์</span>
+                        <span class="bg-red-50 text-red-600 px-4 py-2 rounded-full font-medium border border-red-200 shadow-base"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Club Drugs</span>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 min-h-[300px] flex items-center justify-center">
+                    <img src="DrugOnlinePhoto.png" class="w-full h-full max-h-[400px] rounded-xl object-cover shadow-lg border border-gray-100" alt="ภาพสถานการณ์ยาเสพติดออนไลน์">
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-primary text-white">
+            <div class="flex-1 flex flex-col justify-center items-center max-w-5xl mx-auto w-full gap-8 text-center content-scroll">
+                <img src="Logo.png" class="w-24 h-24 rounded-full shadow-xl mb-2 border-4 border-white/20 bg-white object-cover" alt="โลโก้">
+                <h2 class="text-4xl font-bold">วิสัยทัศน์ (Vision)</h2>
+                <p class="text-2xl font-light leading-relaxed text-blue-100 bg-white/10 p-6 rounded-2xl border border-white/20 shadow-lg">
+                    "เป็นศูนย์คัดกรองที่ได้มาตรฐาน เข้าถึงง่าย <br>ด้วยความร่วมมือของชุมชน เพื่อคุณภาพชีวิตที่ยั่งยืน"
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-6">
+                    <div class="bg-white text-gray-800 p-8 rounded-2xl shadow-lg text-left relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-gray-100 opacity-50"><i class="fa-solid fa-bullseye text-9xl"></i></div>
+                        <h3 class="text-2xl font-bold text-primary mb-4 flex items-center relative z-10"><i class="fa-solid fa-bullseye mr-3"></i>พันธกิจ (Mission)</h3>
+                        <ul class="space-y-3 text-gray-600 font-medium list-disc pl-5 relative z-10">
+                            <li>พัฒนาระบบคัดกรองและประเมินให้ได้มาตรฐาน</li>
+                            <li>มีระบบการส่งต่อผู้ป่วยที่เป็นระบบและรวดเร็ว</li>
+                            <li>บูรณาการความร่วมมือกับภาคีเครือข่ายและชุมชน</li>
+                        </ul>
+                    </div>
+                    <div class="bg-secondary text-white p-8 rounded-2xl shadow-lg text-left relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-teal-800 opacity-20"><i class="fa-solid fa-flag-checkered text-9xl"></i></div>
+                        <h3 class="text-2xl font-bold mb-4 flex items-center relative z-10"><i class="fa-solid fa-flag-checkered mr-3"></i>เป้าประสงค์ (Goals)</h3>
+                        <ul class="space-y-3 text-blue-50 font-medium list-disc pl-5 relative z-10">
+                            <li>ผู้ใช้ยาเสพติดสามารถเข้าถึงบริการได้ง่าย</li>
+                            <li>ผู้เสพได้รับการบำบัดรักษาและฟื้นฟูอย่างเหมาะสม</li>
+                            <li>ชุมชนแสนสุขเข้มแข็งและปลอดภัยจากยาเสพติด</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-white">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ข้อมูลสถิติศูนย์คัดกรองระดับจังหวัด</h2>
+                    <p class="text-gray-500 mt-1">ภาพรวมการดำเนินงานคัดกรองผู้ป่วยยาเสพติด จังหวัดชลบุรี ปีงบประมาณ 2567</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-8 content-scroll items-center">
+                <div class="w-full md:w-1/3 flex flex-col gap-4">
+                    <div class="bg-blue-50 border border-blue-100 p-6 rounded-2xl shadow-base text-center">
+                        <h3 class="text-gray-600 font-semibold mb-2">จำนวนศูนย์คัดกรองทั้งจังหวัด</h3>
+                        <p class="text-5xl font-bold text-primary">216 <span class="text-xl font-normal text-gray-500">แห่ง</span></p>
+                        <div class="flex justify-between mt-4 text-base text-gray-600 px-4">
+                            <span>รพ.สต. <br><strong class="text-lg">118</strong></span>
+                            <span>อปท. <br><strong class="text-lg">97</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-100 p-6 rounded-2xl shadow-base text-center">
+                        <h3 class="text-gray-600 font-semibold mb-2">ผู้เข้ารับการคัดกรอง (ปี 67)</h3>
+                        <p class="text-5xl font-bold text-red-600">3,550 <span class="text-xl font-normal text-gray-500">คน</span></p>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-2/3 bg-white border border-gray-200 rounded-2xl p-6 shadow-base">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 text-center">ผลการประเมินจำแนกประเภทความรุนแรง</h3>
+
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-semibold text-gray-700">กลุ่มผู้ใช้ (User)</span>
+                                <span class="font-bold text-blue-600">353 คน (9.9%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div class="bg-blue-500 h-4 rounded-full" style="width: 10%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-semibold text-gray-700">กลุ่มผู้เสพ (Abuser) - พบมากที่สุด</span>
+                                <span class="font-bold text-orange-500">2,133 คน (60.1%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4 shadow-base border border-orange-200 relative overflow-hidden">
+                                <div class="bg-gradient-to-r from-orange-400 to-orange-500 h-4 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="font-semibold text-gray-700">กลุ่มผู้ติด (Addict)</span>
+                                <span class="font-bold text-red-600">1,064 คน (30.0%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div class="bg-red-500 h-4 rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-4 bg-gray-50 rounded-lg text-base text-gray-600 border-l-4 border-secondary">
+                        <i class="fa-solid fa-circle-info mr-2 text-secondary"></i>
+                        จากสถิติชี้ให้เห็นว่ากลุ่มที่พบมากที่สุดคือ <b>"กลุ่มผู้เสพ"</b> ซึ่งสอดคล้องกับภารกิจของศูนย์คัดกรองที่ต้องเร่งนำผู้เสพเข้าสู่กระบวนการบำบัดแบบ CBTx และลดอันตรายก่อนที่จะก้าวไปสู่กลุ่มผู้ติด
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-0 flex flex-col bg-white">
+            <div class="bg-secondary text-white p-10 pb-16 shrink-0">
+                <h2 class="text-3xl font-bold mb-4">นโยบายและการขับเคลื่อนระดับจังหวัด</h2>
+                <div class="bg-white/20 backdrop-blur-base p-6 rounded-xl border border-white/30 text-center max-w-4xl mx-auto mt-6 shadow-lg transform translate-y-8">
+                    <h1 class="text-3xl md:text-4xl font-bold text-white tracking-wide">"ชลบุรี เที่ยวสุขใจ ปลอดภัยจาก ยาเสพติด"</h1>
+                </div>
+            </div>
+
+            <div class="flex-1 p-10 pt-16 mt-4 flex flex-col md:flex-row gap-8 content-scroll">
+                <div class="w-full md:w-1/2">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6 flex items-center"><i class="fa-solid fa-shield-halved text-primary mr-3"></i> 5 มาตรการเร่งด่วนของจังหวัด</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300">
+                            <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold mr-4 text-base">1</span>
+                            <span class="text-gray-700 font-medium text-base">มาตรการด้านการปราบปรามยาเสพติด</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300">
+                            <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold mr-4 text-base">2</span>
+                            <span class="text-gray-700 font-medium text-base">มาตรการป้องกันยาเสพติด</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300">
+                            <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold mr-4 text-base">3</span>
+                            <span class="text-gray-700 font-medium text-base">มาตรการยึดทรัพย์สินคดียาเสพติด</span>
+                        </div>
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300">
+                            <span class="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center font-bold mr-4 text-base">4</span>
+                            <span class="text-gray-700 font-medium text-base">ด้านการบำบัด/ฟื้นฟู รักษา</span>
+                        </div>
+                        <div class="flex items-center p-4 bg-blue-50 rounded-lg border-l-4 border-primary shadow-base transform scale-105">
+                            <span class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold mr-4">5</span>
+                            <div>
+                                <span class="text-primary font-bold block">มาตรการบริหารจัดการ <span class="text-sm bg-red-500 text-white px-2 py-0.5 rounded ml-2">ศูนย์คัดกรอง</span></span>
+                                <span class="text-sm text-gray-600 mt-1 block">นำผู้เสพเข้าสู่กระบวนการบำบัด ณ ศูนย์คัดกรอง และระบบ CBTx (ชุมชนล้อมรักษ์)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 flex flex-col gap-4">
+                    <img src="Slide5.jpg" class="w-full h-full object-cover rounded-xl shadow-md border border-gray-200" alt="ภาพความร่วมมือภาคีเครือข่าย โครงการดำเนินงานตำบลยั่งยืน">
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-teal-500 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-shield-virus"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ขอบเขตบริการที่ 1: ด้านการป้องกันเชิงรุก</h2>
+                    <p class="text-gray-500 mt-1">การให้ความรู้และค้นหาผู้เสพหน้าใหม่ในชุมชน</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+            <div class="flex-1 flex flex-col md:flex-row gap-8 content-scroll mt-2">
+                <div class="w-full md:w-5/12 flex flex-col gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-base border border-gray-100">
+                        <h3 class="font-bold text-teal-700 text-xl mb-3 flex items-center gap-2"><i class="fa-solid fa-bullhorn"></i> การรณรงค์และให้ความรู้</h3>
+                        <p class="text-gray-600 text-base leading-relaxed">
+                            รพ.สต.แสนสุข มีการลงพื้นที่ออกให้ความรู้กับชุมชนในเวทีต่างๆ อย่างต่อเนื่อง เช่น การประชุมผู้นำชุมชน การจัดทำแผนระดับตำบล และการรณรงค์ในโรงเรียน เพื่อสร้างภูมิคุ้มกันและสร้างความตระหนักรู้ถึงพิษภัยของยาเสพติด
+                        </p>
+                    </div>
+                    <div class="bg-gradient-to-r from-teal-500 to-emerald-500 rounded-2xl p-6 text-white shadow-md">
+                        <div class="flex items-center gap-4 mb-3">
+                            <i class="fa-solid fa-lungs text-4xl text-white/80"></i>
+                            <h3 class="text-xl font-bold">ผลงานบริการเชิงรุก NCDs</h3>
+                        </div>
+                        <p class="text-emerald-50 text-base leading-relaxed mb-4">
+                            ดำเนินการประเมินและคัดกรองกลุ่มเสี่ยง NCDs (บุหรี่/สุรา) ประจำปี ควบคู่ไปกับบริการปกติ เพื่อค้นหากลุ่มเสี่ยงในระยะเริ่มต้น
+                        </p>
+                        <div class="bg-white/20 p-3 rounded-lg flex justify-between items-center">
+                            <span class="text-base">เป้าหมายการคัดกรอง: > 80% </span>
+                            <span class="text-xl font-bold text-yellow-300">ผลงาน: 100% </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-7/12 grid grid-cols-2 gap-4">
+                    <div class="col-span-2 w-full h-44 rounded-xl overflow-hidden shadow-base border border-gray-200 relative group">
+                        <img src="Slide6Meet.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="การประชุมผู้นำชุมชน">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                            <p class="text-white text-sm font-medium"><i class="fa-solid fa-location-dot mr-1"></i> การออกให้ความรู้ในเวทีประชุมผู้นำ/การทำแผนตำบล</p>
+                        </div>
+                    </div>
+                    <div class="w-full h-36 rounded-xl overflow-hidden shadow-base border border-gray-200 relative group">
+                        <img src="Slide6School.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="การรณรงค์ในโรงเรียน/ชุมชน">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                            <p class="text-white text-sm font-medium truncate"><i class="fa-solid fa-school mr-1"></i> การให้ความรู้ในชุมชน</p>
+                        </div>
+                    </div>
+                    <div class="w-full h-36 rounded-xl overflow-hidden shadow-base border border-gray-200 relative group">
+                        <img src="Slide6NCDs.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="การคัดกรอง NCDs">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                            <p class="text-white text-sm font-medium truncate"><i class="fa-solid fa-stethoscope mr-1"></i> การประเมินคัดกรอง NCDs</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-white">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ขอบเขตบริการที่ 2: ด้านการคัดกรองและประเมิน</h2>
+                    <p class="text-gray-500 mt-1">ใช้เครื่องมือมาตรฐานกระทรวงสาธารณสุขในการคัดกรองและประเมินความรุนแรง</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-10 content-scroll mt-2 items-stretch">
+                <div class="w-full md:w-1/2 flex flex-col gap-5 justify-center">
+                    <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 flex gap-4 items-center shadow-base">
+                        <div class="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center shrink-0 text-xl shadow-md"><i class="fa-solid fa-vial"></i></div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-1">1. ตรวจหาสารเสพติดในร่างกาย</h3>
+                            <p class="text-base text-gray-600">บริการตรวจปัสสาวะหาสารเสพติด โดยได้รับการสนับสนุนชุดตรวจทางปัสสาวะจาก องค์การบริหารส่วนจังหวัดชลบุรี</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex gap-4 items-center shadow-base">
+                        <div class="w-12 h-12 bg-gray-400 text-white rounded-full flex items-center justify-center shrink-0 text-xl shadow-md"><i class="fa-solid fa-face-angry"></i></div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-1">2. ประเมินพฤติกรรมก้าวร้าว (OAS)</h3>
+                            <p class="text-base text-gray-600">Overt Aggression Scale หากประเมินแล้วพบว่าอยู่ในเกณฑ์ปกติ (ไม่มีอาการทางจิตเวช) จึงจะรับไว้เข้าสู่กระบวนการคัดกรองขั้นต่อไป</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 p-4 rounded-2xl border border-orange-200 flex gap-4 items-center shadow-base">
+                        <div class="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center shrink-0 text-xl shadow-md"><i class="fa-solid fa-list-check"></i></div>
+                        <div>
+                            <h3 class="font-bold text-orange-700 mb-1">3. แบบประเมิน V.2 (คัดแยกความรุนแรง)</h3>
+                            <p class="text-base text-gray-700">เครื่องมือหลักในการจำแนกพฤติกรรมการใช้ยาของผู้ป่วยออกเป็น 3 ระดับ ได้แก่: <b>ผู้ใช้ (User) / ผู้เสพ (Abuser) / ผู้ติด (Addict)</b></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-purple-50 p-4 rounded-2xl border border-purple-100 flex gap-4 items-center shadow-base">
+                        <div class="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center shrink-0 text-xl shadow-md"><i class="fa-solid fa-brain"></i></div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-1">4. ประเมินสุขภาพจิต (2Q, 9Q, 8Q)</h3>
+                            <p class="text-base text-gray-600">คัดกรองภาวะซึมเศร้าและความเสี่ยงการฆ่าตัวตายเบื้องต้น เพื่อประเมินความเสี่ยงทางสุขภาพจิตร่วมด้วย</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 flex flex-col py-2">
+                    <div class="flex-1 rounded-2xl overflow-hidden shadow-lg border-4 border-gray-100 relative group bg-gray-50">
+                        <img src="Slide7PeeTest.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="กระบวนการรับผู้ป่วยและซักประวัติ">
+
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[#0f4c81] via-[#0f4c81]/80 to-transparent p-6 pt-16">
+                            <h4 class="text-white font-bold text-lg mb-1 flex items-center">
+                                <i class="fa-solid fa-vial-circle-check text-blue-300 mr-2 text-xl"></i> กระบวนการคัดกรองผู้ป่วย
+                            </h4>
+                            <p class="text-blue-100 text-base leading-relaxed">
+                                เจ้าหน้าที่ศูนย์คัดกรองดำเนินการรับลงทะเบียน ซักประวัติ และให้คำแนะนำขั้นตอนการตรวจหาสารเสพติดทางปัสสาวะแก่ผู้รับบริการ
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-green-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-hospital-user"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ขอบเขตบริการที่ 3: ด้านการบำบัดรักษาและส่งต่อ</h2>
+                    <p class="text-gray-500 mt-1">การเตรียมบำบัดเบื้องต้นและการประสานงานส่งต่อเพื่อรับบำบัดตามความรุนแรง</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-7xl mx-auto flex flex-row gap-8 pt-2 pb-4 overflow-hidden h-full items-stretch">
+
+                <div class="w-[35%] flex flex-col h-full shrink-0 justify-center">
+                    <div class="h-full bg-white p-3 rounded-2xl shadow-sm border-2 border-gray-200 relative group overflow-hidden flex items-center justify-center">
+                        <img src="file.jpg" class="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500" alt="เอกสารการส่งต่อ">
+
+                        <div class="absolute bottom-4 left-0 right-0 flex justify-center">
+                            <div class="bg-black/70 backdrop-blur-sm px-4 py-1.5 rounded-lg shadow-sm border border-white/20 flex items-center gap-2">
+                                <i class="fa-solid fa-file-medical text-green-400 text-sm"></i>
+                                <p class="text-white text-sm font-medium">เอกสารส่งต่อผู้ป่วย</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-[65%] flex flex-col gap-6 h-full justify-center">
+
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border-l-8 border-green-500 hover:shadow-md transition-shadow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-person-shelter text-green-500"></i> การเตรียมการบำบัดเบื้องต้น (Brief Intervention)
+                        </h3>
+                        <ul class="space-y-4 text-gray-600 text-base leading-relaxed">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1.5 mr-3 shrink-0 text-lg"></i>
+                                <div><b>การให้คำปรึกษาเบื้องต้น:</b> ให้คำแนะนำและเสริมสร้างแรงจูงใจแก่ผู้ป่วยที่คัดกรองจัดอยู่ในกลุ่ม "ผู้เสพ" ให้เกิดความตระหนักและพร้อมรับการบำบัด</div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1.5 mr-3 shrink-0 text-lg"></i>
+                                <div><b>การจำแนกระดับความรุนแรง:</b> ประเมินปัญหาสุขภาพจิตและพฤติกรรมการเสพติด เพื่อแยกกลุ่ม (ผู้ใช้ / ผู้เสพ / ผู้ติด) อย่างชัดเจน</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-6 md:p-8 rounded-2xl shadow-sm border-l-8 border-indigo-500 hover:shadow-md transition-shadow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-hospital-symbol text-indigo-500"></i> การประสานงานส่งต่อเพื่อรับบำบัดรักษา
+                        </h3>
+                        <ul class="space-y-4 text-gray-600 text-base leading-relaxed">
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-indigo-400 mt-1.5 mr-3 shrink-0 text-lg"></i>
+                                <div><b>การส่งต่อสถานพยาบาลหลัก:</b> ประสานงานนำส่งผู้ป่วยกลุ่ม "ผู้เสพ" และ "ผู้ติด" หรือผู้ที่มีภาวะแทรกซ้อนทางกาย ไปยัง รพ.ชลบุรี หรือโรงพยาบาลต้นสังกัดตามสิทธิการรักษา</div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-indigo-400 mt-1.5 mr-3 shrink-0 text-lg"></i>
+                                <div><b>การเตรียมเอกสารส่งตัว:</b> จัดเตรียมเอกสารการส่งต่อ แบบประเมิน V.2 และประวัติการคัดกรองให้ครบถ้วน เพื่อความต่อเนื่องในการรักษา</div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fa-solid fa-check-circle text-indigo-400 mt-1.5 mr-3 shrink-0 text-lg"></i>
+                                <div><b>ระบบ Fast Track สำหรับกลุ่มเสี่ยง:</b> กรณีพบผู้ป่วยที่มีภาวะฉุกเฉินทางจิต (SMI-V) จะมีระบบนำส่งด่วนเพื่อเข้ารับการรักษาทันทีเพื่อความปลอดภัย</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-house-chimney-medical"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ขอบเขตบริการที่ 4: การติดตามฟื้นฟู และระบบข้อมูล</h2>
+                    <p class="text-gray-500 mt-1">การติดตามดูแลต่อเนื่องในชุมชน (CBTx) และการจัดการฐานข้อมูล</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-7xl mx-auto flex flex-row gap-8 pt-2 pb-4 overflow-hidden h-full items-stretch">
+
+                <div class="w-7/12 flex flex-col gap-6 h-full justify-center">
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-orange-400 hover:shadow-md transition-shadow">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-users-viewfinder text-orange-500"></i> การติดตามฟื้นฟูสภาพทางสังคม (การเยี่ยมบ้าน)
+                        </h3>
+                        <ul class="space-y-3 text-gray-600 text-base">
+                            <li class="flex items-start"><i class="fa-solid fa-check text-orange-400 mt-1 mr-3 shrink-0"></i> <b>การลงพื้นที่เยี่ยมบ้าน:</b> บูรณาการร่วมกับทีมชุมชนล้อมรักษ์ (CBTx), อสม. และผู้นำชุมชน เพื่อติดตามอาการและให้กำลังใจผู้ป่วย</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-orange-400 mt-1 mr-3 shrink-0"></i> <b>ประเมินและฟื้นฟู:</b> ติดตามพฤติกรรม ป้องกันการกลับไปเสพซ้ำ (Relapse Prevention) และประเมินคุณภาพชีวิต</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-orange-400 mt-1 mr-3 shrink-0"></i> <b>ครอบครัวบำบัด:</b> ให้คำปรึกษาแก่ญาติและครอบครัว เพื่อสร้างสภาพแวดล้อมที่เหมาะสมต่อการฟื้นฟู</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-8 border-teal-500 hover:shadow-md transition-shadow mt-2">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-database text-teal-500"></i> ระบบข้อมูลและสารสนเทศ (ระบบ บสต.)
+                        </h3>
+                        <ul class="space-y-3 text-gray-600 text-base">
+                            <li class="flex items-start"><i class="fa-solid fa-check text-teal-400 mt-1 mr-3 shrink-0"></i> <b>การบันทึกข้อมูล:</b> นำเข้าข้อมูลการคัดกรอง การส่งต่อ และผลการติดตาม เข้าสู่ระบบ บสต. อย่างครบถ้วน</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-teal-400 mt-1 mr-3 shrink-0"></i> <b>อัปเดตสถานะ:</b> รายงานผลการดำเนินงานและสถานะของผู้ป่วยแต่ละรายตามวงรอบที่กำหนด</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-teal-400 mt-1 mr-3 shrink-0"></i> <b>ความปลอดภัยของข้อมูล:</b> ปฏิบัติตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล (PDPA) อย่างเคร่งครัด</li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="w-5/12 flex flex-col gap-4 h-full shrink-0">
+
+                    <div class="h-[60%] bg-white p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden flex items-center justify-center">
+                        <img src="House.jpg" class="w-full h-full object-cover object-top rounded-xl group-hover:scale-105 transition-transform duration-500" alt="การติดตามเยี่ยมบ้าน">
+                        <div class="absolute bottom-4 right-4 bg-orange-600/90 text-white text-sm font-bold py-1.5 px-4 rounded-lg backdrop-blur-sm shadow-md border border-orange-500">การติดตามเยี่ยมบ้าน (CBTx)</div>
+                    </div>
+
+                    <div class="h-[40%] bg-white p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden">
+                        <img src="bst.jpg" class="w-full h-full object-cover object-center rounded-xl group-hover:scale-105 transition-transform duration-500" alt="ระบบ บสต.">
+                        <div class="absolute bottom-4 right-4 bg-teal-600/90 text-white text-sm font-bold py-1.5 px-4 rounded-lg backdrop-blur-sm shadow-md border border-teal-500">การบันทึกข้อมูลในระบบ บสต.</div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-handshake"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">การบูรณาการภาคีเครือข่ายและการทำ MOU</h2>
+                    <p class="text-gray-500 mt-1">บันทึกข้อตกลงความร่วมมือการดำเนินงานป้องกันและแก้ไขปัญหายาเสพติด</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-8 content-scroll mt-2 items-stretch">
+                <div class="w-full md:w-7/12 flex flex-col gap-6 justify-center">
+                    <div class="bg-white p-6 rounded-2xl shadow-base border-t-4 border-blue-600">
+                        <h3 class="font-bold text-gray-800 text-xl mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-users-rays text-blue-500"></i> หน่วยงานที่ร่วมลงนาม (4 ฝ่าย)
+                        </h3>
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="flex items-center gap-3 bg-blue-50 p-3 rounded-lg border border-blue-100 hover:bg-blue-100 transition-colors">
+                                <i class="fa-solid fa-house-medical text-primary text-2xl"></i>
+                                <span class="text-base font-bold text-gray-800">รพ.สต.แสนสุข</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                                <i class="fa-solid fa-building-shield text-gray-600 text-2xl"></i>
+                                <span class="text-base font-bold text-gray-800">สภ.แสนสุข</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-green-50 p-3 rounded-lg border border-green-100 hover:bg-green-100 transition-colors">
+                                <i class="fa-solid fa-tree-city text-green-600 text-2xl"></i>
+                                <span class="text-base font-bold text-gray-800">เทศบาลเมืองแสนสุข</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-orange-50 p-3 rounded-lg border border-orange-100 hover:bg-orange-100 transition-colors">
+                                <i class="fa-solid fa-user-shield text-orange-600 text-2xl"></i>
+                                <span class="text-base font-bold text-gray-800">ฝ่ายปกครองอำเภอ</span>
+                            </div>
+                        </div>
+
+                        <h3 class="font-bold text-gray-800 text-lg mb-3 mt-6 border-b pb-2">สาระสำคัญของข้อตกลงความร่วมมือ</h3>
+                        <ul class="space-y-4 text-gray-700 text-base">
+                            <li class="flex items-start gap-3">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 text-lg"></i>
+                                <span>ร่วมกัน<b>ค้นหา นำส่ง และคัดกรอง</b>ผู้ป่วยยาเสพติดในพื้นที่เข้าสู่กระบวนการบำบัด</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 text-lg"></i>
+                                <span>สนับสนุนชุดปฏิบัติการชุมชนล้อมรักษ์ (CBTx) ในการ<b>ติดตามดูแลผู้ผ่านการบำบัด</b></span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 text-lg"></i>
+                                <span><b>รักษาความปลอดภัยและระงับเหตุฉุกเฉิน</b>กรณีผู้ป่วยก้าวร้าวรุนแรง (SMI-V)</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i class="fa-solid fa-check-circle text-green-500 mt-1 text-lg"></i>
+                                <span>แลกเปลี่ยนข้อมูลข่าวสารภายใต้<b>กฎหมายคุ้มครองข้อมูลส่วนบุคคล (PDPA)</b></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-5/12 flex flex-col py-2 h-full">
+                    <div class="w-full h-full rounded-2xl overflow-hidden shadow-md border-4 border-gray-100 bg-gray-100 flex items-center justify-center relative group">
+                        <img src="MOU.jpg" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500" alt="ภาพบรรยากาศการลงนาม">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4 opacity-90">
+                            <p class="text-white text-base font-medium text-center">ภาพบรรยากาศการลงนามความร่วมมือ (MOU) การดำเนินงานป้องกันและแก้ไขปัญหายาเสพติด</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-secondary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-building-shield"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">อาคารสถานที่ และสิ่งอำนวยความสะดวก</h2>
+                    <p class="text-gray-500 mt-1">มาตรฐานการรับรองคุณภาพ (ตอนที่ 2: ระบบงานสำคัญ)</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 content-scroll pb-4 mt-2">
+                <div class="bg-white rounded-2xl p-6 shadow-base border border-gray-100 flex flex-col">
+                    <i class="fa-solid fa-door-open text-4xl text-blue-400 mb-4 text-center"></i>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">การจัดการพื้นที่</h3>
+                    <p class="text-base text-gray-600 mb-4 text-center">
+                        สถานที่ออกแบบให้เป็นสัดส่วน เอื้อต่อความปลอดภัย ให้ความเป็นส่วนตัวแก่ผู้รับบริการ และมีระบบระบายอากาศที่ถ่ายเทสะดวก
+                    </p>
+                    <div class="mt-auto w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center border-2 border-dashed border-gray-300">
+                        <img src="PatientRegistration.jpg" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="จุดซักประวัติ">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-base border border-gray-100 flex flex-col">
+                    <i class="fa-solid fa-flask text-4xl text-purple-400 mb-4 text-center"></i>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">จุดตรวจปัสสาวะ</h3>
+                    <p class="text-base text-gray-600 mb-4 text-center">
+                        สถานที่เก็บปัสสาวะสะอาด ปลอดภัย <b>ควบคุมการปนเปื้อนได้</b> และสามารถระบุตัวตนของสิ่งส่งตรวจได้อย่างชัดเจน
+                    </p>
+                    <div class="mt-auto w-full aspect-[4/3] rounded-lg overflow-hidden shadow-sm">
+                        <img src="PeeTestPoint.jpg" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="จุดตรวจปัสสาวะ">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-base border border-gray-100 flex flex-col">
+                    <i class="fa-solid fa-plug-circle-bolt text-4xl text-yellow-500 mb-4 text-center"></i>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2 text-center">ระบบสำรอง & อุปกรณ์</h3>
+                    <p class="text-base text-gray-600 mb-4 text-center">
+                        มีระบบไฟฟ้าและน้ำสำรองตลอดเวลา พร้อมอุปกรณ์จำเป็น (ชุดทดสอบ เครื่องวัดความดัน) และตู้เก็บเวชระเบียนที่ปลอดภัย
+                    </p>
+                    <div class="mt-auto w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center border-2 border-dashed border-gray-300">
+                        <img src="PressureGauge.jpg" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="เครื่องัดความดัน">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-trash-can-arrow-up"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">การจัดการขยะติดเชื้อและสิ่งส่งตรวจ</h2>
+                    <p class="text-gray-500 mt-1">มาตรฐานความปลอดภัยด้านอาคารสถานที่และระบบการควบคุมการติดเชื้อ</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-8 content-scroll mt-2 items-stretch max-w-6xl mx-auto w-full">
+                <div class="w-full md:w-3/5 flex flex-col gap-5 justify-center pt-4 pb-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-red-500 hover:shadow-md transition-shadow">
+                        <h3 class="font-bold text-gray-800 text-xl mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-biohazard text-red-500"></i> จุดทิ้งขยะติดเชื้อ (Infectious Waste)
+                        </h3>
+                        <p class="text-gray-600 leading-relaxed mb-4">
+                            ศูนย์คัดกรอง รพ.สต.แสนสุข ได้จัดเตรียมถังขยะสำหรับทิ้งขยะติดเชื้อโดยเฉพาะ เพื่อรองรับ <b>ตลับทดสอบสารเสพติดและถ้วยเก็บปัสสาวะ</b> หลังเสร็จสิ้นกระบวนการตรวจ โดยปฏิบัติตามมาตรฐานการควบคุมการติดเชื้ออย่างเคร่งครัด
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-red-50/50 p-4 rounded-xl border border-red-100">
+                                <i class="fa-solid fa-pump-medical text-red-400 text-2xl mb-2"></i>
+                                <h4 class="font-bold text-gray-800 text-sm">ภาชนะรองรับมาตรฐาน</h4>
+                                <p class="text-sm text-gray-600 mt-1">ใช้ถังขยะสีแดงแบบมีฝาปิดมิดชิด มีสัญลักษณ์ขยะมูลฝอยติดเชื้อชัดเจน</p>
+                            </div>
+                            <div class="bg-red-50/50 p-4 rounded-xl border border-red-100">
+                                <i class="fa-solid fa-sack-xmark text-red-400 text-2xl mb-2"></i>
+                                <h4 class="font-bold text-gray-800 text-sm">ถุงแดงรองรับภายใน</h4>
+                                <p class="text-sm text-gray-600 mt-1">ซ้อนด้วยถุงขยะสีแดงเพื่อป้องกันการรั่วซึมของสารคัดหลั่งหรือสิ่งปนเปื้อน</p>
+                            </div>
+                            <div class="bg-red-50/50 p-4 rounded-xl border border-red-100 md:col-span-2 flex items-center gap-4">
+                                <i class="fa-solid fa-truck-medical text-red-400 text-2xl"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 text-sm">การจัดเก็บและทำลาย</h4>
+                                    <p class="text-sm text-gray-600 mt-1">มัดปากถุงให้แน่นสนิทเมื่อใช้งานเสร็จ และนำส่งทำลายตามระบบการจัดการขยะติดเชื้อของหน่วยงานสาธารณสุข</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-2/5 flex flex-col py-2 h-full justify-center">
+                    <div class="w-full h-[28rem] rounded-2xl overflow-hidden shadow-lg border-4 border-gray-100 bg-white flex items-center justify-center relative group">
+                        <img src="bin.jpg" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500 object-center" alt="ถังขยะติดเชื้อสีแดง">
+
+                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-sm border border-gray-200 flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                            <span class="text-sm font-bold text-gray-700">จุดทิ้งสิ่งส่งตรวจ</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">กระบวนการรับและคัดกรองผู้ป่วย (Workflow)</h2>
+                    <p class="text-gray-500 mt-1">รายละเอียดขั้นตอนการให้บริการและจำแนกผู้ป่วยเพื่อส่งต่อบำบัดรักษา</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-6xl mx-auto flex flex-col gap-5 pt-2 pb-6 justify-center">
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border-l-8 border-blue-500 flex items-start gap-6 hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex justify-center items-center text-blue-600 text-3xl font-bold shrink-0 shadow-inner">1</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">ขั้นตอนการรับเข้าและซักประวัติ (Admission & Registration)</h3>
+                        <ul class="space-y-2.5 text-gray-600 text-base">
+                            <li class="flex items-start"><i class="fa-solid fa-check text-blue-500 mt-1 mr-3"></i> <b>การรับเข้า:</b> รับผู้ป่วยที่เข้ารับการบำบัดแบบสมัครใจ หรือ ผู้ที่ได้รับการส่งต่อจากกระบวนการทางกฎหมาย (ม.114)</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-blue-500 mt-1 mr-3"></i> <b>ซักประวัติ:</b> ดำเนินการซักประวัติเบื้องต้น ตรวจสอบสิทธิการรักษาพยาบาล และลงทะเบียนเข้ารับบริการ</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-blue-500 mt-1 mr-3"></i> <b>พิทักษ์สิทธิ์:</b> เจ้าหน้าที่ให้คำแนะนำ แจ้งสิทธิ ขั้นตอนการให้บริการ และชี้แจงการคุ้มครองข้อมูลส่วนบุคคล (PDPA) ให้ผู้ป่วยและญาติรับทราบอย่างชัดเจน</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border-l-8 border-indigo-500 flex items-start gap-6 hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex justify-center items-center text-indigo-600 text-3xl font-bold shrink-0 shadow-inner">2</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">ขั้นตอนการคัดกรองและประเมิน (Screening & Assessment)</h3>
+                        <ul class="space-y-2.5 text-gray-600 text-base">
+                            <li class="flex items-start"><i class="fa-solid fa-check text-indigo-500 mt-1 mr-3"></i> <b>ประเมินความปลอดภัย:</b> ประเมินความเสี่ยงพฤติกรรมก้าวร้าวรุนแรง (OAS) ก่อนให้บริการเพื่อความปลอดภัย</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-indigo-500 mt-1 mr-3"></i> <b>ตรวจหาสารเสพติด:</b> ดำเนินการเก็บปัสสาวะในสถานที่ที่จัดเตรียมไว้ และตรวจด้วยชุดทดสอบที่ได้มาตรฐาน</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-indigo-500 mt-1 mr-3"></i> <b>จำแนกกลุ่มผู้ป่วย:</b> ทำแบบประเมิน V.2 ร่วมกับการสัมภาษณ์ เพื่อจำแนกระดับความรุนแรง (ผู้ใช้ / ผู้เสพ / ผู้ติด)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border-l-8 border-teal-500 flex items-start gap-6 hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 bg-teal-100 rounded-full flex justify-center items-center text-teal-600 text-3xl font-bold shrink-0 shadow-inner">3</div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">ขั้นตอนการบันทึกข้อมูลและส่งต่อ (Recording & Referral)</h3>
+                        <ul class="space-y-2.5 text-gray-600 text-base">
+                            <li class="flex items-start"><i class="fa-solid fa-check text-teal-500 mt-1 mr-3"></i> <b>ระบบข้อมูล:</b> บันทึกประวัติ ผลการประเมิน และผลการคัดกรองลงในระบบข้อมูล บสต. ให้ครบถ้วนและเป็นปัจจุบัน</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-teal-500 mt-1 mr-3"></i> <b>การส่งต่อ:</b> สรุปผลการประเมินเพื่อดำเนินการส่งต่อสถานพยาบาลหลัก (รพ.ชลบุรี) ตามเกณฑ์ระดับความรุนแรง</li>
+                            <li class="flex items-start"><i class="fa-solid fa-check text-teal-500 mt-1 mr-3"></i> <b>การดูแลต่อเนื่อง:</b> ประสานงานเครือข่ายชุมชน (CBTx) เพื่อบูรณาการร่วมกับผู้นำชุมชนในการติดตามดูแล</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-5 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-images"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ภาพประกอบการดำเนินงานรับและคัดกรอง</h2>
+                    <p class="text-gray-500 mt-1">บรรยากาศ สถานที่ และอุปกรณ์จริงของศูนย์คัดกรอง รพ.สต.แสนสุข</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-7xl mx-auto flex flex-col gap-4 pb-2 overflow-hidden h-full">
+
+                <div class="grid grid-cols-4 gap-4 h-[55%] shrink-0">
+                    <div class="col-span-2 bg-white p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden">
+                        <img src="WaitArea.jpg" class="w-full h-full object-cover object-center rounded-xl group-hover:scale-105 transition-transform duration-500" alt="จุดพักคอย">
+                        <div class="absolute bottom-3 left-3 bg-black/70 text-white text-sm font-medium py-1.5 px-4 rounded-lg backdrop-blur-sm border border-white/20">จุดพักคอย / พื้นที่ให้บริการภายใน</div>
+                    </div>
+                    <div class="col-span-1 bg-white p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden">
+                        <img src="PatientRegistration.jpg" class="w-full h-full object-cover object-top rounded-xl group-hover:scale-105 transition-transform duration-500" alt="จุดซักประวัติ">
+                        <div class="absolute bottom-3 left-3 bg-black/70 text-white text-sm font-medium py-1.5 px-4 rounded-lg backdrop-blur-sm border border-white/20">จุดซักประวัติ</div>
+                    </div>
+                    <div class="col-span-1 bg-white p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden">
+                        <img src="toilet.jpg" class="w-full h-full object-cover object-center rounded-xl group-hover:scale-105 transition-transform duration-500" alt="ห้องน้ำ">
+                        <div class="absolute bottom-3 left-3 bg-black/70 text-white text-sm font-medium py-1.5 px-4 rounded-lg backdrop-blur-sm border border-white/20">จุดปัสสาวะ</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-4 h-[45%] shrink-0">
+                    <div class="col-span-2 bg-white p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden">
+                        <img src="bst.jpg" class="w-full h-full object-cover object-top rounded-xl group-hover:scale-105 transition-transform duration-500" alt="ระบบ บสต.">
+                        <div class="absolute bottom-3 left-3 bg-teal-600/90 text-white text-sm font-bold py-1.5 px-4 rounded-lg backdrop-blur-sm border border-teal-500 shadow-md">การบันทึกข้อมูลเข้าสู่ระบบ บสต.</div>
+                    </div>
+                    <div class="col-span-1 bg-gray-50 p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden flex items-center justify-center">
+                        <img src="V2_page-0001.jpg" class="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 shadow-sm" alt="V2 หน้า 1">
+                        <div class="absolute bottom-3 left-3 bg-black/70 text-white text-sm font-medium py-1.5 px-4 rounded-lg backdrop-blur-sm border border-white/20">แบบประเมิน V.2 (หน้า 1)</div>
+                    </div>
+                    <div class="col-span-1 bg-gray-50 p-2.5 rounded-2xl shadow-sm border-2 border-gray-100 relative group overflow-hidden flex items-center justify-center">
+                        <img src="V2_page-0002.jpg" class="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform duration-500 shadow-sm" alt="V2 หน้า 2">
+                        <div class="absolute bottom-3 left-3 bg-black/70 text-white text-sm font-medium py-1.5 px-4 rounded-lg backdrop-blur-sm border border-white/20">แบบประเมิน V.2 (หน้า 2)</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slide p-6 md:p-10 flex flex-col bg-slate-50">
+            <div class="mb-4 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-sitemap"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">แผนผังกระบวนการคัดกรอง (Flowchart)</h2>
+                    <p class="text-gray-500 mt-1">แนวทางการตัดสินใจ และการจำแนกผู้ป่วยเพื่อส่งต่อบำบัดรักษา</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full flex items-center justify-center mt-2 pb-4">
+                <div class="w-full max-w-6xl aspect-video bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden flex items-center justify-center">
+                    <img src="Flowchart.png" class="w-full h-full object-contain hover:scale-[1.02] transition-transform duration-500" alt="Flowchart กระบวนการคัดกรอง">
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-sitemap"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">เจ้าหน้าที่ที่ปฏิบัติงานในศูนย์คัดกรอง</h2>
+                    <p class="text-gray-500 mt-1">บุคลากรและผู้รับผิดชอบงานศูนย์คัดกรอง รพ.สต.แสนสุข</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center content-scroll mt-2 w-full max-w-7xl mx-auto pt-4 pb-10">
+
+                <div class="bg-white border-t-4 border-blue-600 shadow-lg rounded-2xl p-5 text-center w-80 mb-8 relative z-10 hover:-translate-y-1 transition-transform">
+                    <div class="w-24 h-24 mx-auto rounded-full bg-gray-100 border-4 border-blue-50 mb-3 flex items-center justify-center overflow-hidden">
+                        <img src="Director.jpg" class="w-full h-full object-cover" alt="หัวหน้าศูนย์คัดกรอง" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                        <i class="fa-solid fa-user-tie text-4xl text-gray-400 hidden"></i>
+                    </div>
+                    <h3 class="font-bold text-gray-800 text-xl">นายวินิต วิไลวงษ์วัฒนกิจ</h3>
+                    <p class="text-base text-blue-600 font-bold mt-1">ผอ.รพ.สต.แสนสุข</p>
+                    <p class="text-sm text-gray-500 mt-0.5">หัวหน้าศูนย์คัดกรอง</p>
+                </div>
+
+                <div class="w-full relative hidden md:block">
+                    <div class="absolute top-0 left-1/4 right-1/4 h-10 border-t-2 border-l-2 border-r-2 border-blue-200 rounded-t-xl transform -translate-y-8"></div>
+                    <div class="absolute top-0 left-1/2 w-0.5 h-8 bg-blue-200 transform -translate-y-16"></div>
+                </div>
+
+                <div class="w-full flex flex-col md:flex-row gap-10 relative">
+
+                    <div class="flex-1 bg-blue-50/70 rounded-3xl p-8 border border-blue-100 relative pt-12 mt-6 md:mt-0 shadow-sm">
+                        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-8 py-2 rounded-full text-base font-bold shadow-md whitespace-nowrap flex items-center">
+                            <i class="fa-solid fa-user-nurse mr-2"></i> เจ้าหน้าที่สาธารณสุข
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-6 justify-center h-full">
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center flex-1 text-center hover:shadow-md transition-shadow">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full mb-4 border-2 border-gray-100 overflow-hidden">
+                                    <img src="1person.jpg" class="w-full h-full object-cover object-top" alt="นางสาวกัญญ์ภรณ์">
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-base leading-tight whitespace-nowrap">นางสาวกัญญ์ภรณ์ โรจนกูลเศรษฐ์</h4>
+                                <p class="text-sm text-primary font-medium mt-2">นักวิชาการสาธารณสุขชำนาญการ</p>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center flex-1 text-center hover:shadow-md transition-shadow">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full mb-4 border-2 border-gray-100 overflow-hidden">
+                                    <img src="2person.jpg" class="w-full h-full object-cover object-top" alt="นางสาวเสาวภา">
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-base leading-tight whitespace-nowrap">นางสาวเสาวภา เพ็ชรนิล</h4>
+                                <p class="text-sm text-primary font-medium mt-2">นักวิชาการสาธารณสุขปฏิบัติการ</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-green-50/70 rounded-3xl p-8 border border-green-100 relative pt-12 mt-10 md:mt-0 shadow-sm">
+                        <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-8 py-2 rounded-full text-base font-bold shadow-md whitespace-nowrap flex items-center">
+                            <i class="fa-solid fa-users text-white mr-2"></i> บุคลากรที่ได้รับการอบรม
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-6 justify-center h-full">
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center flex-1 text-center hover:shadow-md transition-shadow">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full mb-4 border-2 border-gray-100 overflow-hidden flex items-center justify-center text-gray-300">
+                                    <img src="3person.jpg" class="w-full h-full object-cover object-top" alt="นางจุฑามาศ" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <i class="fa-solid fa-user text-3xl hidden"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-base leading-tight whitespace-nowrap">นางจุฑามาศ ปรารมณ์</h4>
+                                <p class="text-sm text-green-700 font-medium mt-2">ประธาน อสม.ตำบลแสนสุข</p>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center flex-1 text-center hover:shadow-md transition-shadow">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full mb-4 border-2 border-gray-100 overflow-hidden flex items-center justify-center text-gray-300">
+                                    <img src="4person.jpg" class="w-full h-full object-cover object-top" alt="นายนิติ" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <i class="fa-solid fa-user text-3xl hidden"></i>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-base leading-tight whitespace-nowrap">นายนิติ ชนะสงคราม</h4>
+                                <p class="text-sm text-green-700 font-medium mt-2">ประธานชุมชนร่วมใจพัฒนา</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-white">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">แผนการฝึกอบรมและศึกษาต่อเนื่อง</h2>
+                    <p class="text-gray-500 mt-1">ยกระดับศักยภาพบุคลากร เพื่อรองรับการบำบัดฟื้นฟูอย่างยั่งยืน</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col justify-center content-scroll max-w-5xl mx-auto w-full gap-8 mt-2">
+                <p class="text-gray-700 text-center mb-2">เพื่อให้ศูนย์คัดกรอง รพ.สต.แสนสุข มีความพร้อมในการรับมือและบำบัดรักษาผู้ป่วยยาเสพติดได้อย่างมีประสิทธิภาพ จึงได้จัดทำแผนพัฒนาบุคลากร (Training Plan) ล่วงหน้า ดังนี้</p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-white p-6 rounded-2xl border border-blue-100 shadow-md relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-16 h-16 bg-blue-100 rounded-bl-full flex items-start justify-end p-3 text-blue-400">
+                            <i class="fa-solid fa-comments text-2xl"></i>
+                        </div>
+                        <span class="inline-block bg-blue-500 text-white text-sm px-3 py-1 rounded-full font-bold mb-3 tracking-wide">เป้าหมายปี พ.ศ. 2568</span>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">หลักสูตร BA & BI</h3>
+                        <p class="text-base text-gray-600 mb-4 h-10">การให้คำปรึกษาเบื้องต้น (Brief Advice) และการบำบัดแบบสั้น (Brief Intervention)</p>
+                        <div class="bg-white p-3 rounded-lg border border-gray-100 mt-auto">
+                            <p class="text-sm text-gray-500 uppercase font-bold">เป้าหมายผู้เข้ารับการอบรม:</p>
+                            <p class="text-base font-semibold text-primary mt-1"><i class="fa-solid fa-user-check mr-2"></i>นางสาวเสาวภา เพ็ชรนิล</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-50 to-white p-6 rounded-2xl border border-indigo-100 shadow-md relative overflow-hidden">
+                        <div class="absolute right-0 top-0 w-16 h-16 bg-indigo-100 rounded-bl-full flex items-start justify-end p-3 text-indigo-400">
+                            <i class="fa-solid fa-people-group text-2xl"></i>
+                        </div>
+                        <span class="inline-block bg-indigo-500 text-white text-sm px-3 py-1 rounded-full font-bold mb-3 tracking-wide">เป้าหมายปี พ.ศ. 2569</span>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Matrix Program</h3>
+                        <p class="text-base text-gray-600 mb-4 h-10">หลักสูตรกายจิตสังคมบำบัด เพื่อฟื้นฟูผู้ติดยาเสพติดแบบผู้ป่วยนอก</p>
+                        <div class="bg-white p-3 rounded-lg border border-gray-100 mt-auto">
+                            <p class="text-sm text-gray-500 uppercase font-bold">เป้าหมายผู้เข้ารับการอบรม:</p>
+                            <p class="text-base font-semibold text-primary mt-1"><i class="fa-solid fa-user-check mr-2"></i>นางสาวเสาวภา เพ็ชรนิล</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-xl flex items-start gap-4">
+                    <i class="fa-solid fa-lightbulb text-yellow-500 text-2xl mt-1"></i>
+                    <div>
+                        <h4 class="font-bold text-gray-800">ผลลัพธ์ที่คาดหวัง</h4>
+                        <p class="text-base text-gray-600 mt-1">เจ้าหน้าที่จะมีทักษะการบำบัดยาเสพติดรูปแบบ BA, BI และ Matrix Program ช่วยยกระดับศักยภาพของศูนย์คัดกรองให้สามารถรับมือและส่งต่อผู้ป่วยได้อย่างเป็นระบบและมีประสิทธิภาพสูงสุด <b>ร้อยละ 100</b></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-purple-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">การพัฒนาคุณภาพอย่างต่อเนื่อง (CQI)</h2>
+                    <p class="text-gray-500 mt-1">แนวทางการยกระดับมาตรฐานและพัฒนาระบบบริการศูนย์คัดกรอง</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-6xl mx-auto flex flex-col justify-center gap-6 pt-2 pb-6">
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border-l-8 border-purple-500 flex items-center gap-4 shrink-0">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl shrink-0">
+                        <i class="fa-solid fa-bullseye"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">เป้าหมายการพัฒนา (Quality Goal)</h3>
+                        <p class="text-sm text-gray-600 mt-1">มุ่งเน้นการพัฒนาระบบการคัดกรองให้รวดเร็ว แม่นยำ และผู้ป่วยได้รับการดูแลอย่างเหมาะสม โดยใช้กระบวนการ PDCA เป็นกลไกหลักในการขับเคลื่อนอย่างต่อเนื่อง</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 h-full mt-2">
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-blue-500 flex gap-5 items-start shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-blue-50/50 text-8xl font-black z-0">P</div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 shadow-md z-10">P</div>
+                        <div class="z-10">
+                            <h4 class="font-bold text-gray-800 text-lg mb-3">Plan (การวางแผน)</h4>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-blue-400 mt-1 mr-2 text-[10px]"></i>ทบทวนกระบวนการทำงานและผลการดำเนินงานที่ผ่านมา</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-blue-400 mt-1 mr-2 text-[10px]"></i>วิเคราะห์ปัญหาและอุปสรรคในการให้บริการคัดกรอง</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-blue-400 mt-1 mr-2 text-[10px]"></i>กำหนดหัวข้อการพัฒนาและตั้งเป้าหมายตัวชี้วัด (KPIs)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-orange-500 flex gap-5 items-start shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-orange-50/50 text-8xl font-black z-0">D</div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 text-white rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 shadow-md z-10">D</div>
+                        <div class="z-10">
+                            <h4 class="font-bold text-gray-800 text-lg mb-3">Do (การปฏิบัติ)</h4>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-orange-400 mt-1 mr-2 text-[10px]"></i>นำแนวทางหรือนวัตกรรมใหม่มาทดลองปรับใช้ในการทำงาน</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-orange-400 mt-1 mr-2 text-[10px]"></i>จัดการอบรมและทบทวนองค์ความรู้ให้แก่เจ้าหน้าที่</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-orange-400 mt-1 mr-2 text-[10px]"></i>บูรณาการการปฏิบัติงานร่วมกับภาคีเครือข่ายระดับชุมชน</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-teal-500 flex gap-5 items-start shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-teal-50/50 text-8xl font-black z-0">C</div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-teal-400 to-teal-600 text-white rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 shadow-md z-10">C</div>
+                        <div class="z-10">
+                            <h4 class="font-bold text-gray-800 text-lg mb-3">Check (การตรวจสอบ)</h4>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-teal-400 mt-1 mr-2 text-[10px]"></i>ติดตามและประเมินผลการดำเนินงานตามตัวชี้วัดที่ตั้งไว้</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-teal-400 mt-1 mr-2 text-[10px]"></i>ประเมินความพึงพอใจของผู้รับบริการและเครือข่าย</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-teal-400 mt-1 mr-2 text-[10px]"></i>ตรวจสอบความถูกต้องครบถ้วนของการบันทึกข้อมูลระบบ บสต.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border-t-4 border-green-500 flex gap-5 items-start shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                        <div class="absolute -right-4 -top-4 text-green-50/50 text-8xl font-black z-0">A</div>
+                        <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-green-600 text-white rounded-xl flex items-center justify-center text-2xl font-bold shrink-0 shadow-md z-10">A</div>
+                        <div class="z-10">
+                            <h4 class="font-bold text-gray-800 text-lg mb-3">Act (การปรับปรุง)</h4>
+                            <ul class="text-sm text-gray-600 space-y-2">
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-green-400 mt-1 mr-2 text-[10px]"></i>นำผลการประเมินมาปรับปรุงแก้ไขข้อบกพร่องที่พบ</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-green-400 mt-1 mr-2 text-[10px]"></i>จัดทำเป็นมาตรฐานการปฏิบัติงาน (SOP) ฉบับใหม่</li>
+                                <li class="flex items-start"><i class="fa-solid fa-circle-dot text-green-400 mt-1 mr-2 text-[10px]"></i>สรุปบทเรียนและขยายผลแนวปฏิบัติที่ดี (Best Practice)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-white">
+            <div class="mb-6 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-fire-extinguisher"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ระบบการจัดการภาวะฉุกเฉินและอัคคีภัย</h2>
+                    <p class="text-gray-500 mt-1">การบริหารความเสี่ยงและเตรียมความพร้อมด้านอาคารสถานที่</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-sm object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 flex flex-col md:flex-row gap-8 content-scroll mt-2 items-stretch">
+                <div class="w-full md:w-1/2 flex flex-col justify-center gap-4 py-2">
+                    <h3 class="text-xl font-bold text-red-700 flex items-center mb-2">
+                        <i class="fa-solid fa-shield-halved mr-2"></i> มาตรการด้านความปลอดภัย
+                    </h3>
+                    <div class="bg-red-50 p-6 rounded-2xl border border-red-100 shadow-sm h-full flex flex-col justify-center">
+                        <ul class="space-y-6 text-gray-700 text-sm md:text-base">
+                            <li class="flex items-start gap-4">
+                                <div class="mt-1 w-8 h-8 rounded-full bg-red-200 text-red-700 flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid fa-fire"></i></div>
+                                <div>
+                                    <b class="text-gray-800">การติดตั้งและอุปกรณ์ดับเพลิง:</b>
+                                    <p class="mt-1 text-gray-600">มีการติดตั้งถังดับเพลิงในจุดที่เข้าถึงง่าย ครอบคลุมพื้นที่ให้บริการ พร้อมป้ายแสดงวิธีการใช้งานที่ชัดเจน ("ดึง-ปลด-กด-ส่าย") และตรวจสอบสภาพสม่ำเสมอ</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="mt-1 w-8 h-8 rounded-full bg-red-200 text-red-700 flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid fa-person-running"></i></div>
+                                <div>
+                                    <b class="text-gray-800">การกำหนดจุดรวมพล (Assembly Point):</b>
+                                    <p class="mt-1 text-gray-600">มีการติดป้ายและกำหนดจุดรวมพลภายนอกอาคารอย่างชัดเจน เพื่อรองรับสถานการณ์ฉุกเฉินและการอพยพผู้รับบริการและบุคลากร</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start gap-4">
+                                <div class="mt-1 w-8 h-8 rounded-full bg-red-200 text-red-700 flex items-center justify-center shrink-0 shadow-sm"><i class="fa-solid fa-building-circle-check"></i></div>
+                                <div>
+                                    <b class="text-gray-800">ความพร้อมของอาคารสถานที่:</b>
+                                    <p class="mt-1 text-gray-600">จัดสภาพแวดล้อมให้ปลอดภัยทั้งสำหรับผู้ปฏิบัติงานและผู้มารับบริการ เป็นไปตามมาตรฐานระบบงานสำคัญของศูนย์คัดกรอง</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-1/2 flex flex-col gap-4 py-2 h-full">
+                    <div class="flex gap-4 h-1/2 min-h-[220px]">
+                        <div class="w-1/2 rounded-2xl overflow-hidden shadow-md border-4 border-gray-100 bg-gray-100 flex items-center justify-center group relative">
+                            <img src="Fireman1.jpg" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" alt="ถังดับเพลิง จุดที่ 1">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <p class="text-white text-sm md:text-sm font-medium text-center">จุดติดตั้งที่ 1</p>
+                            </div>
+                        </div>
+                        <div class="w-1/2 rounded-2xl overflow-hidden shadow-md border-4 border-gray-100 bg-gray-100 flex items-center justify-center group relative">
+                            <img src="Fireman2.jpg" class="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500" alt="ถังดับเพลิง จุดที่ 2">
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <p class="text-white text-sm md:text-sm font-medium text-center">จุดติดตั้งที่ 2</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-full h-1/2 min-h-[180px] rounded-2xl overflow-hidden shadow-md border-4 border-gray-100 bg-gray-100 flex items-center justify-center group relative">
+                        <img src="AssemblyPoint.jpg" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="ป้ายจุดรวมพล">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <p class="text-white text-sm font-medium text-center">ป้ายบอกจุดรวมพลชัดเจนบริเวณภายนอกอาคาร</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-5 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ผลการประเมินตนเองเพื่อการรับรองคุณภาพ</h2>
+                    <p class="text-gray-500 mt-1">ตอนที่ 1: การบริหารจัดการทั่วไป (General Management)</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-7xl mx-auto flex flex-col gap-5 pt-2 pb-4 h-full">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl p-5 text-white shadow-md flex justify-between items-center shrink-0">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-chart-pie text-4xl opacity-80"></i>
+                        <div>
+                            <h3 class="text-xl font-bold">สรุปผลการประเมิน ตอนที่ 1</h3>
+                            <p class="text-sm text-blue-100">การบริหารจัดการภายในศูนย์คัดกรอง</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black">3.0 / 3.0</div>
+                        <p class="text-sm font-medium text-blue-100">คะแนนประเมินตนเองเฉลี่ย</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-row gap-6 h-full items-stretch">
+                    <div class="w-5/12 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center">
+                        <h4 class="font-bold text-blue-700 text-lg border-b pb-2 mb-5">คะแนนประเมินแยกตามองค์ประกอบ</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>1. การนำ</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>2. การวางแผนและการบริหารแผน</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>3. การมุ่งเน้นผู้รับผลงานและเครือข่าย</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>4. การวัด วิเคราะห์ และจัดการความรู้</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>5. การมุ่งเน้นทรัพยากรบุคคล</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-7/12 bg-blue-50/50 rounded-xl shadow-sm border border-blue-100 p-6 flex flex-col justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-lightbulb absolute -bottom-4 -right-4 text-8xl text-blue-200/50"></i>
+                        <h4 class="font-bold text-blue-700 text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-award"></i> จุดเด่นและสิ่งที่พบในการดำเนินงาน</h4>
+                        <ul class="text-gray-700 text-base space-y-4 relative z-10">
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-blue-100"><i class="fa-solid fa-arrow-right text-blue-500 mt-1 mr-3 shrink-0"></i><b>ผู้บริหารมีวิสัยทัศน์:</b> มีการประชุมคณะกรรมการใน รพ.สต. เพื่อกำหนดนโยบายการจัดตั้งศูนย์คัดกรองอย่างเป็นรูปธรรม</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-blue-100"><i class="fa-solid fa-arrow-right text-blue-500 mt-1 mr-3 shrink-0"></i><b>การทำงานเป็นทีม:</b> เจ้าหน้าที่ รพ.สต. ให้ความร่วมมือเป็นอย่างดี โดยมีการจัดทำแผนร่วมกัน และแบ่งหน้าที่ความรับผิดชอบอย่างชัดเจนเป็นลายลักษณ์อักษร</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-blue-100"><i class="fa-solid fa-arrow-right text-blue-500 mt-1 mr-3 shrink-0"></i><b>พลังเครือข่าย:</b> ชุมชนให้ความร่วมมือในการดำเนินงานดูแลผู้ป่วยในพื้นที่เป็นอย่างดี</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-blue-100"><i class="fa-solid fa-arrow-right text-blue-500 mt-1 mr-3 shrink-0"></i><b>การพัฒนาบุคลากร:</b> มีการส่งเสริมและพัฒนาศักยภาพผู้ปฏิบัติงานโดยส่งเข้ารับการอบรมอย่างต่อเนื่อง</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-5 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ผลการประเมินตนเองเพื่อการรับรองคุณภาพ</h2>
+                    <p class="text-gray-500 mt-1">ตอนที่ 2: ระบบงานสำคัญ (Key Work Systems)</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-7xl mx-auto flex flex-col gap-5 pt-2 pb-4 h-full">
+                <div class="bg-gradient-to-r from-amber-500 to-amber-400 rounded-2xl p-5 text-white shadow-md flex justify-between items-center shrink-0">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-star text-4xl opacity-80"></i>
+                        <div>
+                            <h3 class="text-xl font-bold">สรุปผลการประเมิน ตอนที่ 2</h3>
+                            <p class="text-sm text-amber-50">ระบบความปลอดภัย สาธารณูปโภค และระบบข้อมูล</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black">3.0 / 3.0</div>
+                        <p class="text-sm font-medium text-amber-50">คะแนนประเมินตนเองเฉลี่ย</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-row gap-6 h-full items-stretch">
+                    <div class="w-5/12 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center">
+                        <h4 class="font-bold text-amber-600 text-lg border-b pb-2 mb-5">คะแนนประเมินแยกตามองค์ประกอบ</h4>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>1. ระบบบริหารความเสี่ยง</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-amber-400 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>2. การจัดการภาวะฉุกเฉิน/อัคคีภัย</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-amber-400 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>3. ระบบสาธารณูปโภคและเครื่องมือ</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-amber-400 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-1">
+                                    <span>4. ระบบเวชระเบียนและการบันทึกข้อมูล</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-amber-400 h-2 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-7/12 bg-amber-50/50 rounded-xl shadow-sm border border-amber-100 p-6 flex flex-col justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-medal absolute -bottom-4 -right-4 text-8xl text-amber-200/50"></i>
+                        <h4 class="font-bold text-amber-700 text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-layer-group"></i> จุดเด่นและสิ่งที่พบในการดำเนินงาน</h4>
+                        <ul class="text-gray-700 text-base space-y-4 relative z-10">
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-amber-100"><i class="fa-solid fa-check text-amber-500 mt-1 mr-3 shrink-0"></i><b>แผนการดำเนินงานชัดเจน:</b> มีขั้นตอนการทำงาน (Flow Chart) ที่เป็นระบบและเข้าใจง่าย</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-amber-100"><i class="fa-solid fa-check text-amber-500 mt-1 mr-3 shrink-0"></i><b>การคุ้มครองข้อมูลส่วนบุคคล:</b> มีการจัดเก็บและคุ้มครองข้อมูลส่วนบุคคลตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ.2562 (PDPA) อย่างเคร่งครัด</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-amber-100"><i class="fa-solid fa-check text-amber-500 mt-1 mr-3 shrink-0"></i><b>การพัฒนาคุณภาพ (CQI):</b> เมื่อพบข้อสงสัยหรือข้อผิดพลาดในการดำเนินงาน ได้นำปัญหามาทบทวนเพื่อหาแนวทางการแก้ไขอย่างเป็นระบบ</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-amber-100"><i class="fa-solid fa-check text-amber-500 mt-1 mr-3 shrink-0"></i><b>มาตรฐานสถานที่และอุปกรณ์:</b> มีการจัดสถานที่ให้เอื้ออำนวยต่อการทำงาน มีความปลอดภัย และมีอุปกรณ์พร้อมใช้งานได้มาตรฐาน</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-5 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-stethoscope"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ผลการประเมินตนเองเพื่อการรับรองคุณภาพ</h2>
+                    <p class="text-gray-500 mt-1">ตอนที่ 3: กระบวนการดูแลผู้ป่วย (Patient Care Process)</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-7xl mx-auto flex flex-col gap-5 pt-2 pb-4 h-full">
+                <div class="bg-gradient-to-r from-teal-600 to-teal-400 rounded-2xl p-5 text-white shadow-md flex justify-between items-center shrink-0">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-heart-pulse text-4xl opacity-80"></i>
+                        <div>
+                            <h3 class="text-xl font-bold">สรุปผลการประเมิน ตอนที่ 3</h3>
+                            <p class="text-sm text-teal-100">กระบวนการคัดกรอง ประเมิน และการดูแลต่อเนื่อง</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-3xl font-black">3.0 / 3.0</div>
+                        <p class="text-sm font-medium text-teal-100">คะแนนประเมินตนเองเฉลี่ย</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-row gap-6 h-full items-stretch">
+                    <div class="w-5/12 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center">
+                        <h4 class="font-bold text-teal-600 text-lg border-b pb-2 mb-5">คะแนนประเมินแยกตามองค์ประกอบ</h4>
+                        <div class="space-y-8">
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-2">
+                                    <span>1. กระบวนการดูแลผู้ป่วยด้านการคัดกรอง</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-teal-500 h-2.5 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm font-medium text-gray-700 mb-2">
+                                    <span>2. การวางแผนส่งต่อผู้ป่วย</span>
+                                    <span>3.0 / 3.0</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-teal-500 h-2.5 rounded-full" style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-7/12 bg-teal-50/50 rounded-xl shadow-sm border border-teal-100 p-6 flex flex-col justify-center relative overflow-hidden">
+                        <i class="fa-solid fa-notes-medical absolute -bottom-4 -right-4 text-8xl text-teal-200/50"></i>
+                        <h4 class="font-bold text-teal-700 text-xl mb-4 flex items-center gap-2"><i class="fa-solid fa-circle-check"></i> จุดเด่นและสิ่งที่พบในการดำเนินงาน</h4>
+                        <ul class="text-gray-700 text-base space-y-4 relative z-10">
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-teal-100"><i class="fa-solid fa-arrow-right text-teal-500 mt-1 mr-3 shrink-0"></i><b>มาตรฐานวิชาชีพ:</b> มีเอกสารการทำงานตามมาตรฐาน และมีแบบประเมินครบถ้วน (OAS, V2, 2Q, 9Q, 8Q)</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-teal-100"><i class="fa-solid fa-arrow-right text-teal-500 mt-1 mr-3 shrink-0"></i><b>ความเชี่ยวชาญ:</b> ผู้ปฏิบัติงานมีความรู้ ความเข้าใจในการใช้แบบสอบถาม มีทักษะในการดูแลและให้คำแนะนำผู้รับบริการได้ตามข้อกำหนด</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-teal-100"><i class="fa-solid fa-arrow-right text-teal-500 mt-1 mr-3 shrink-0"></i><b>ระบบส่งต่อ:</b> สามารถประเมินและส่งต่อผู้ป่วยได้อย่างรวดเร็ว ในกรณีที่อาการเกินขีดความสามารถของ รพ.สต.</li>
+                            <li class="flex items-start bg-white/70 p-4 rounded-xl border border-teal-100"><i class="fa-solid fa-arrow-right text-teal-500 mt-1 mr-3 shrink-0"></i><b>การติดตามในชุมชน:</b> มีการประสานงานกับภาคีเครือข่าย และมีแผนการดูแลในชุมชนโดยผู้นำชุมชน เพื่อสอดส่องดูแลอย่างต่อเนื่อง</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="slide p-10 flex flex-col bg-slate-50">
+            <div class="mb-5 flex items-center gap-4 border-b pb-4 shrink-0">
+                <div class="w-12 h-12 bg-rose-600 rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">ผลการประเมินตนเองเพื่อการรับรองคุณภาพ</h2>
+                    <p class="text-gray-500 mt-1">ตอนที่ 4: ผลลัพธ์การดำเนินงาน (Outcomes & Value Delivered)</p>
+                </div>
+                <img src="Logo.png" class="ml-auto w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-100 shadow-base object-cover" alt="โลโก้">
+            </div>
+
+            <div class="flex-1 w-full max-w-6xl mx-auto flex flex-col gap-6 pt-2 pb-4 h-full justify-center">
+
+                <div class="bg-gradient-to-r from-rose-600 to-rose-400 rounded-2xl p-6 text-white shadow-md relative overflow-hidden shrink-0">
+                    <i class="fa-solid fa-quote-left absolute -top-4 -left-2 text-7xl text-white/10"></i>
+                    <h3 class="text-xl font-bold mb-2 relative z-10 flex items-center gap-2">
+                        <i class="fa-solid fa-bullhorn text-rose-100"></i> สรุปผลลัพธ์การขับเคลื่อนศูนย์คัดกรอง
+                    </h3>
+                    <p class="text-rose-50 text-base leading-relaxed relative z-10">
+                        "ศูนย์คัดกรอง รพ.สต.แสนสุข สามารถดำเนินการคัดกรอง ค้นหา เฝ้าระวัง ให้คำปรึกษา ตรวจปัสสาวะหาสารเสพติด ส่งต่อ และติดตามดูแลร่วมกับชุมชนได้อย่างมีประสิทธิภาพ เป็นที่พึ่งให้ประชาชนในพื้นที่ในการให้คำแนะนำ ปรึกษาปัญหายาเสพติดให้กับผู้รับบริการและครอบครัว ส่งผลให้สามารถลดความรุนแรงจากการใช้ยาเสพติดในพื้นที่ได้อย่างเป็นรูปธรรม"
+                    </p>
+                </div>
+
+                <div class="flex flex-row gap-6 h-full mt-2 items-stretch">
+
+                    <div class="flex-1 bg-white p-6 rounded-xl shadow-sm border-t-4 border-blue-500 flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-3xl mb-4 shadow-inner">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-2">ค้นหาและคัดกรอง</h4>
+                        <p class="text-sm text-gray-600">มีระบบการเฝ้าระวัง ตรวจปัสสาวะ และคัดกรองผู้ป่วยเชิงรุกอย่างมีประสิทธิภาพ</p>
+                    </div>
+
+                    <div class="flex-1 bg-white p-6 rounded-xl shadow-sm border-t-4 border-amber-500 flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+                        <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-3xl mb-4 shadow-inner">
+                            <i class="fa-solid fa-hand-holding-heart"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-2">ที่พึ่งของชุมชน</h4>
+                        <p class="text-sm text-gray-600">เป็นศูนย์กลางในการให้คำปรึกษาแก่ผู้ป่วยและครอบครัวอย่างเข้าใจและปลอดภัย</p>
+                    </div>
+
+                    <div class="flex-1 bg-white p-6 rounded-xl shadow-sm border-t-4 border-teal-500 flex flex-col items-center text-center hover:-translate-y-1 transition-transform">
+                        <div class="w-16 h-16 bg-teal-100 rounded-full flex items-center justify-center text-teal-600 text-3xl mb-4 shadow-inner">
+                            <i class="fa-solid fa-shield-virus"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 text-lg mb-2">ลดความรุนแรง</h4>
+                        <p class="text-sm text-gray-600">ติดตามดูแลร่วมกับเครือข่ายชุมชน ช่วยลดปัญหาความรุนแรงจากการใช้ยาเสพติดในพื้นที่</p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="slide bg-primary text-white p-10 flex flex-col items-center justify-center">
+            <div class="absolute inset-0 opacity-5 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+            <div class="relative z-10 w-full max-w-5xl text-center flex flex-col items-center">
+
+                <img src="Logo.png" class="w-28 h-28 rounded-full shadow-2xl mb-6 border-4 border-white/20 bg-white object-cover" alt="โลโก้">
+
+                <h2 class="text-4xl font-bold mb-10">แผนยุทธศาสตร์ศูนย์คัดกรองในอนาคต (ระยะ 1-3 ปี)</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left w-full">
+                    <div class="bg-white/10 backdrop-blur p-6 rounded-xl border border-white/20 hover:bg-white/20 transition-colors">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-graduation-cap"></i></div>
+                        <h3 class="text-xl font-bold mb-2">กลยุทธ์: พัฒนาศักยภาพบุคลากร</h3>
+                        <p class="text-blue-100 text-base mb-4 line-clamp-3">ค้นหาและส่งบุคลากรเข้าอบรมหลักสูตร BA, BI, MI หรือ E-learning สบยช. เพื่อเพิ่มขีดความสามารถในการคัดกรองและบำบัด พร้อมถ่ายทอดความรู้สู่ทีม</p>
+                        <div class="flex items-center gap-2 text-green-300 text-base font-medium mt-auto">
+                            <i class="fa-solid fa-bullseye"></i> ตัวชี้วัด: เจ้าหน้าที่ผ่านการอบรม 100%
+                        </div>
+                    </div>
+
+                    <div class="bg-white/10 backdrop-blur p-6 rounded-xl border border-white/20 hover:bg-white/20 transition-colors">
+                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl mb-4"><i class="fa-solid fa-hand-holding-medical"></i></div>
+                        <h3 class="text-xl font-bold mb-2">กลยุทธ์: ขับเคลื่อนการบำบัด & ส่งต่อ</h3>
+                        <p class="text-blue-100 text-base mb-4 line-clamp-3">ประชาสัมพันธ์บริการ คัดกรองผู้ป่วยทุกรูปแบบ (สมัครใจ/ม.114) ส่งต่อ รพ.ชลบุรี และประสานภาคีเครือข่ายเพื่อนำผู้ป่วยคืนสู่ชุมชนได้อย่างสำเร็จ</p>
+                        <div class="flex items-center gap-2 text-green-300 text-base font-medium mt-auto">
+                            <i class="fa-solid fa-bullseye"></i> ตัวชี้วัด: ผู้ป่วยยาเสพติดรับการคัดกรอง 100%
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="text-4xl md:text-5xl font-bold mt-16 text-white drop-shadow-lg">ขอขอบคุณที่รับชม</h1>
+                <p class="text-blue-200 mt-4">ศูนย์คัดกรอง โรงพยาบาลส่งเสริมสุขภาพตำบลแสนสุข</p>
+
+                <button onclick="window.print()" class="mt-10 bg-white text-primary hover:bg-blue-50 font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 flex items-center gap-3">
+                    <i class="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
+                    บันทึกสไลด์เป็น PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button id="prevBtn" class="btn-nav" onclick="changeSlide(-1)"><i class="fa-solid fa-chevron-left"></i> ก่อนหน้า</button>
+            <button id="nextBtn" class="btn-nav" onclick="changeSlide(1)">ถัดไป <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <div class="progress-container" id="dots">
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlideIndex = 0;
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const dotsContainer = document.getElementById('dots');
+
+        // Create dots
+        slides.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (index === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(index);
+            dotsContainer.appendChild(dot);
+        });
+        const dots = document.querySelectorAll('.dot');
+
+        function updateControls() {
+            prevBtn.disabled = currentSlideIndex === 0;
+            nextBtn.disabled = currentSlideIndex === slides.length - 1;
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlideIndex);
+            });
+        }
+
+        function resizeSlider() {
+            const slider = document.querySelector('.slide-container');
+            // คำนวณหาอัตราส่วนที่น้อยที่สุด ระหว่างความกว้าง หรือ ความสูง
+            // เพื่อให้สไลด์ 1920x1080 ย่อ/ขยายพอดีจอโดยไม่แหว่ง
+            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            
+            // เพิ่มคำสั่ง translate(-50%, -50%) เพื่อดึงสไลด์กลับมาอยู่กึ่งกลางเป๊ะๆ แล้วค่อย scale ย่อขนาด
+            slider.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        // สั่งให้คำนวณขนาดทันทีที่โหลดหน้าเว็บ และทุกครั้งที่ย่อ/ขยายหน้าต่าง
+        window.addEventListener('resize', resizeSlider);
+        resizeSlider();
+        // ==========================================
+
+        function changeSlide(direction) {
+            const newIndex = currentSlideIndex + direction;
+            if (newIndex >= 0 && newIndex < slides.length) {
+                goToSlide(newIndex);
+            }
+        }
+
+        function goToSlide(index) {
+            slides[currentSlideIndex].classList.remove('active');
+            currentSlideIndex = index;
+            slides[currentSlideIndex].classList.add('active');
+            updateControls();
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowLeft') {
+                changeSlide(-1);
+            }
+        });
+
+        // Touch swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.getElementById('slider').addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.getElementById('slider').addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) changeSlide(1); // Swipe left -> next
+            if (touchEndX > touchStartX + 50) changeSlide(-1); // Swipe right -> prev
+        }
+
+        // Initialize
+        updateControls();
+    </script>
+
+</body>
+
+</html>
